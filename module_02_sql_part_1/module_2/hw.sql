@@ -50,7 +50,10 @@ INSERT INTO session_2_sql.hw_advanced_query VALUES
 
 -- COMMAND ----------
 
-
+select product, price, qty, (price * qty) as total_value
+from session_2_sql.hw_advanced_query
+where qty is not null
+LIMIT 2;
 
 -- COMMAND ----------
 
@@ -68,6 +71,10 @@ INSERT INTO session_2_sql.hw_advanced_query VALUES
 
 -- COMMAND ----------
 
+SELECT product, category
+FROM session_2_sql.hw_advanced_query
+WHERE product LIKE '____'
+LIMIT 3;
 
 
 -- COMMAND ----------
@@ -87,7 +94,10 @@ INSERT INTO session_2_sql.hw_advanced_query VALUES
 
 -- COMMAND ----------
 
-
+SELECT * FROM session_2_sql.hw_advanced_query
+WHERE txn_date BETWEEN '2025-02-01' AND '2025-02-28'
+AND category IN ('Electronics', 'Outdoor')
+LIMIT 3;
 
 -- COMMAND ----------
 
@@ -107,7 +117,10 @@ INSERT INTO session_2_sql.hw_advanced_query VALUES
 
 -- COMMAND ----------
 
-
+SELECT category, status, COUNT(*) as txn_count
+FROM session_2_sql.hw_advanced_query
+GROUP BY category, status
+ORDER BY category ASC;
 
 -- COMMAND ----------
 
@@ -126,7 +139,11 @@ INSERT INTO session_2_sql.hw_advanced_query VALUES
 
 -- COMMAND ----------
 
-
+SELECT customer_id, SUM(price) AS total_spent
+FROM session_2_sql.hw_advanced_query
+GROUP BY customer_id
+ORDER BY total_spent DESC
+LIMIT 3;
 
 -- COMMAND ----------
 
@@ -144,7 +161,10 @@ INSERT INTO session_2_sql.hw_advanced_query VALUES
 
 -- COMMAND ----------
 
-
+SELECT category, MAX(price) AS highest_price, MIN(price) AS lowest_price
+FROM session_2_sql.hw_advanced_query
+GROUP BY category
+ORDER BY highest_price DESC;
 
 -- COMMAND ----------
 
