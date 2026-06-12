@@ -11,7 +11,10 @@
 
 # COMMAND ----------
 
+def subtract_numbers(a: int, b: int) -> int:
+    return a - b
 
+print(subtract_numbers(10, 4))
 
 # COMMAND ----------
 
@@ -26,7 +29,10 @@
 
 # COMMAND ----------
 
+def greet_user(name: str, greeting: str = "Hello") -> str:
+    return f"{greeting} {name}"
 
+print(greet_user("Alice"))
 
 # COMMAND ----------
 
@@ -42,7 +48,10 @@
 
 # COMMAND ----------
 
+def sum_all_args(*args: int) -> int:
+    return sum(args)
 
+print(sum_all_args(5, 10, 15, 20))
 
 # COMMAND ----------
 
@@ -57,7 +66,11 @@
 
 # COMMAND ----------
 
+def print_config(**kwargs: str) -> None:
+    for key, value in kwargs.items():
+        print(f"{key} is set to {value}")
 
+print_config(env="production", cluster="databricks")
 
 # COMMAND ----------
 
@@ -72,7 +85,12 @@
 
 # COMMAND ----------
 
+def add_five(num: int) -> int:
+    return num + 5
 
+numbers = [10, 20, 30]
+result_map = list(map(add_five, numbers))
+print(result_map)
 
 # COMMAND ----------
 
@@ -88,7 +106,12 @@
 
 # COMMAND ----------
 
+def is_short_word(word: str) -> bool:
+    return len(word) < 5
 
+words = ["cat", "elephant", "dog", "hippopotamus"]
+result_filter = list(filter(is_short_word, words))
+print(result_filter)
 
 # COMMAND ----------
 
@@ -104,3 +127,14 @@
 
 # COMMAND ----------
 
+def process_pipeline(*args: int) -> list:
+    def is_even(n: int) -> bool:
+        return n % 2 == 0
+    def multiply_ten(n: int) -> int:
+        return n * 10
+        
+    filtered_nums = filter(is_even, args)
+    mapped_nums = map(multiply_ten, filtered_nums)
+    return list(mapped_nums)
+
+print(process_pipeline(1, 2, 3, 4, 5, 6))
