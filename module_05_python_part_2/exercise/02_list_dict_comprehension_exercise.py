@@ -11,7 +11,9 @@
 
 # COMMAND ----------
 
-
+base_list = [1, 2, 3, 4]
+multiplied = [num * 3 for num in base_list]
+print(multiplied)
 
 # COMMAND ----------
 
@@ -24,7 +26,9 @@
 
 # COMMAND ----------
 
-
+keys = ["a", "b", "c"]
+upper_dict = {k: k.upper() for k in keys}
+print(upper_dict)
 
 # COMMAND ----------
 
@@ -39,7 +43,9 @@
 
 # COMMAND ----------
 
-
+scores = [45, 80, 20, 95, 100, 33]
+extract_score = [scores for scores in scores if scores > 50]
+print(extract_score)
 
 # COMMAND ----------
 
@@ -53,7 +59,9 @@
 
 # COMMAND ----------
 
-
+numbers = [1, 2, 3, 4]
+odd_even = ["Even" if num % 2 == 0 else "Odd" for num in numbers]
+print(odd_even)
 
 # COMMAND ----------
 
@@ -66,7 +74,9 @@
 
 # COMMAND ----------
 
-
+prices = {"apple": 10, "banana": 20, "cherry": 5}
+expensive_fruits = {k: v for k, v in prices.items() if v >= 10}
+print(expensive_fruits)
 
 # COMMAND ----------
 
@@ -82,7 +92,9 @@
 
 # COMMAND ----------
 
-
+raw_data = [1, 2, 3, 4, 5, 6, 7, 8]
+multiply = [num * 100 if num == 4 else num for num in raw_data if num % 2 == 0]
+print(multiply)
 
 # COMMAND ----------
 
@@ -93,6 +105,12 @@
 # MAGIC   2. Create a dict comprehension where the key is the number, and the value is `num * 2` if the number is 20, else keep it as `num`.
 # MAGIC   3. Add an `if` filter so the dictionary ONLY contains numbers divisible by 10.
 # MAGIC
+
+# COMMAND ----------
+
+values = [10, 15, 20, 25, 30]
+complex_dict = {num: num * 2 if num == 20 else num for num in values if num % 10 ==0}
+print(complex_dict)
 
 # COMMAND ----------
 
