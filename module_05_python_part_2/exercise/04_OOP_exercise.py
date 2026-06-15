@@ -17,7 +17,11 @@
 
 # COMMAND ----------
 
-
+from dataclasses import dataclass
+@dataclass
+class Server:
+    hostname: str
+    cores: int
 
 # COMMAND ----------
 
@@ -30,7 +34,13 @@
 
 # COMMAND ----------
 
+# 1. สร้าง Object (Instance) จากพิมพ์เขียว Server
+my_server = Server(hostname="dbx-cluster-1", cores=8)
 
+# 2. เข้าถึงและพิมพ์ค่าโดยใช้ Dot Notation
+print(my_server.hostname)
+
+# ผลลัพธ์: dbx-cluster-1
 
 # COMMAND ----------
 
@@ -46,7 +56,18 @@
 
 # COMMAND ----------
 
+from dataclasses import dataclass
+@dataclass
+class DataPipeline:
+    name: str
+    status: str
 
+    def start_pipeline(self):
+        print(f"Starting pipeline {self.name}")
+        self.status = "running"
+pipeline = DataPipeline(name="ETL_Sales", status="Stopped")
+pipeline.start_pipeline()
+print(pipeline.status)
 
 # COMMAND ----------
 
@@ -60,7 +81,17 @@
 
 # COMMAND ----------
 
+@dataclass
+class DataPipeline:
+    name: str
+    status: str
 
+    def scale_cluster(self, nodes: int = 2) -> None:
+        print(f"Scaling {self.name} to {nodes} nodes")
+
+pipeline = DataPipeline("Sales", "Running")
+pipeline.scale_cluster()
+pipeline.scale_cluster(nodes=4)
 
 # COMMAND ----------
 
@@ -74,7 +105,17 @@
 
 # COMMAND ----------
 
-
+from dataclasses import dataclass
+@dataclass
+class Customer:
+    first_name: str
+    last_name: str
+def __post_init__(self):
+    self.first_name = self.first_name.title()
+    self.last_name = self.last_name.title()
+user = Customer(first_name="john", last_name="doe")
+print(user.first_name, end=" ")
+print(user.last_name)
 
 # COMMAND ----------
 
@@ -93,7 +134,16 @@
 
 # COMMAND ----------
 
+from dataclasses import dataclass
+@dataclass
+class SensorData:
+    temperature: int
 
+    def __post_init__(self):
+        self.alert_level = "High" if self.temperature > 80 else "Normal"
+        
+data = SensorData(90)
+print(data.alert_level)
 
 # COMMAND ----------
 
@@ -106,6 +156,32 @@
 # MAGIC   4. Method 2: `delete_data(self, records: int) -> None` which subtracts from `record_count`. 
 # MAGIC   5. In `delete_data`, raise a `ValueError` if `records` to delete is greater than `record_count`.
 # MAGIC
+
+# COMMAND ----------
+
+from dataclasses import dataclass
+
+@dataclass
+class DeltaTableSimulator:
+    table_name: str
+    record_count: int
+
+    def insert_data(self, records: int) -> None:
+        self.record_count += records
+        print(f"Inserted {records} records into {self.record_count}")
+
+    def delete_data(self, records: int) -> None:
+        if records > self.record_count:
+            raise ValueError("Cannot delete more records than exist")
+        self.record_count -= records
+        print(f"Deleted {records} records from {self.record_count}")
+
+table = DeltaTableSimulator("bronze_sales", 100)
+table.insert_data(50)
+try:
+    table.delete_data(200)
+except ValueError as e:
+    print(f"Error: {e}")
 
 # COMMAND ----------
 
