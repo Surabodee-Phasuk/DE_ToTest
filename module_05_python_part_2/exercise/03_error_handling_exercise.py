@@ -17,7 +17,10 @@
 
 # COMMAND ----------
 
-
+try:
+    result = 50 / 0
+except ZeroDivisionError:
+    print("Cannot divide by zero!")
 
 # COMMAND ----------
 
@@ -31,7 +34,10 @@
 
 # COMMAND ----------
 
-
+try:
+    combined = "Databricks" + 10
+except TypeError:
+    print("Cannot combine a string and an integer!")
 
 # COMMAND ----------
 
@@ -48,7 +54,13 @@
 
 # COMMAND ----------
 
-
+val = "text"
+try:
+    result = 100/int(val)
+except ValueError:
+    print("Value Error")
+except ZeroDivisionError:
+    print("Zero Division Error")
 
 # COMMAND ----------
 
@@ -62,7 +74,13 @@
 
 # COMMAND ----------
 
-
+def validate_temperature(temp: int):
+    if temp > 100:
+        raise Exception("Temperature is critically high!")
+try:
+    validate_temperature(105)
+except Exception as e:
+    print(e)
 
 # COMMAND ----------
 
@@ -76,7 +94,11 @@
 
 # COMMAND ----------
 
-
+config = {"mode": "append"}
+try:
+    print(config["path"])
+except KeyError:
+    print("Path not found in config")
 
 # COMMAND ----------
 
@@ -92,6 +114,14 @@
 
 # COMMAND ----------
 
+def safe_integer_cast(value):
+    try:
+        return int(value)
+    except ValueError as e:
+        print(f"Error casting value: {e}")
+        return -1
+print(safe_integer_cast("100"))
+print(safe_integer_cast("invalid"))
 
 
 # COMMAND ----------
@@ -103,6 +133,16 @@
 # MAGIC   2. Inside the loop, use a `try` block to divide `20` by `int(item)`.
 # MAGIC   3. Catch `Exception` to ignore any errors (ValueError, ZeroDivisionError), print the error, and use `continue` to move to the next iteration.
 # MAGIC
+
+# COMMAND ----------
+
+mixed_list = [10, 0, "5", "abc", 2]
+for item in mixed_list:
+    try:
+        result = 20 / int(item)
+        print(f"Result: {item} = {result}")
+    except Exception as e:
+        print(f"Error: {e}")
 
 # COMMAND ----------
 
