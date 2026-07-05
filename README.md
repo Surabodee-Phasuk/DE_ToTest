@@ -48,6 +48,22 @@ Module 1
 * **ELT (Extract, Load, Transform)**: การดึงข้อมูลไปเก็บไว้ที่ปลายทางก่อน แล้วค่อยทำการแปลงข้อมูลในภายหลัง (นิยมใช้กับระบบ Cloud สมัยใหม่)
 
 ---
-Module 2
+Module 2: ฐานข้อมูลและภาษา SQL เบื้องต้น (SQL Part 1 - DDL & DML)
 ---
-**Reference**: ข้อมูลสรุปจากหลักสูตร *Databricks for Data Engineer Bootcamp* โดย DataSpark TH
+## 1. ภาษาสำหรับการนิยามข้อมูล (DDL - Data Definition Language)
+คำสั่งที่ใช้ในการสร้างและปรับเปลี่ยนโครงสร้างของตารางในตรรกะระบบ Lakehouse:
+* **CREATE / CREATE OR REPLACE**: การสร้างตารางใหม่ หรือสร้างแทนที่ตารางเดิมที่มีอยู่แล้ว พร้อมการกำหนด `TBLPROPERTIES` เช่น `delta.enableTypeWidening` และ `delta.columnMapping.mode` เพื่อรองรับฟีเจอร์ของ Delta Table
+* **ALTER TABLE**: การแก้ไขตาราง เช่น การเพิ่มคอลัมน์ (`ADD COLUMN`), การลบคอลัมน์ (`DROP COLUMN`), การเปลี่ยนชื่อคอลัมน์ (`RENAME COLUMN`), และการเปลี่ยนประเภทข้อมูล (`ALTER COLUMN TYPE`)
+* **TRUNCATE / DROP**: `TRUNCATE` ใช้สำหรับล้างข้อมูลภายในตารางทั้งหมดโดยคงโครงสร้างตารางไว้ ส่วน `DROP` ใช้สำหรับลบตารางออกจากระบบอย่างถาวร
+
+## 2. ภาษาสำหรับการจัดการข้อมูล (DML - Data Manipulation Language)
+คำสั่งพื้นฐานในการควบคุมและจัดการข้อมูลในระดับแถว:
+* **INSERT INTO**: การเพิ่มข้อมูลใหม่เข้าไปยังตาราง
+* **UPDATE / DELETE**: `UPDATE` ใช้แก้ไขค่าของข้อมูลตามเงื่อนไขที่กำหนด และ `DELETE` ใช้สำหรับลบแถวข้อมูลออกจากตาราง
+* **SELECT & WHERE Clause**: การดึงข้อมูลและการกรองข้อมูลด้วยเงื่อนไขต่างๆ เช่น `IN`, `BETWEEN`, `IS NULL`, หรือการใช้ Wildcard Matching ด้วย `LIKE` (`%`, `_`)
+
+## 3. การจัดกลุ่มข้อมูลและตัวกรองขั้นสูง (Aggregation & Having)
+* **GROUP BY**: การจัดกลุ่มข้อมูลตามคอลัมน์ที่ต้องการเพื่อทำสถิติร่วมกับฟังก์ชัน Aggregate (เช่น `SUM`, `COUNT`, `AVG`, `MIN`, `MAX`)
+* **HAVING Clause**: ตัวกรองเงื่อนไขที่ใช้สำหรับคัดเลือกกลุ่มข้อมูล**หลัง**จากการทำ Group By (ต่างจาก `WHERE` ที่กรองข้อมูลก่อนการจัดกลุ่ม)
+
+---
