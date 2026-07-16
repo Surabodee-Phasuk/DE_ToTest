@@ -70,7 +70,14 @@ spark.read.format("csv").load("/Volumes/workspace/session_6_spark/volume_staging
 
 # COMMAND ----------
 
- 
+read_csv_df = (
+    spark.read
+    .format("csv")
+    .option("header", True)
+    .option("delimiter", "|")
+    .load('/Volumes/workspace/session_6_spark/volume_staging')
+)
+read_csv_df.display()
 
 # COMMAND ----------
 
