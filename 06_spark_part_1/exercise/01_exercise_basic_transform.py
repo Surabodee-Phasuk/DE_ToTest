@@ -49,7 +49,11 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .select(col("shop_id").alias("store_code"), col("sales_amount"))
+ .limit(2)
+ .display()
+)
 
 # COMMAND ----------
 
@@ -71,7 +75,11 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .filter(col("store_size").isNotNull() & (col("store_size") != ""))
+ .select("shop_id", "store_size")
+ .display()
+)
 
 # COMMAND ----------
 
@@ -88,7 +96,13 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .filter(col("shop_id") == 101)
+ .withColumn("projected_sales", col("sales_amount") * 1.15)
+ .withColumn("fiscal_year", lit(2026))
+ .select("shop_id", "sales_amount", "projected_sales", "fiscal_year")
+ .display()
+)
 
 # COMMAND ----------
 
@@ -113,7 +127,12 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .filter(col("sales_amount").between(1000, 5000))
+ .filter(col("store_size").isin(["Large", "Medium"]))
+ .filter(~(col("shop_id") == 404))
+ .display()
+)
 
 # COMMAND ----------
 
@@ -133,7 +152,18 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .filter(col("shop_id").isin([201, 501, 901]))
+ .withColumn("performance_tier", 
+             when(col("sales_amount") > 10000, "Diamond")
+             .when(col("sales_amount") > 5000, "Gold")
+             .otherwise("Silver"))
+ .withColumn("size_flag", 
+             when(col("store_size").isNull() | (col("store_size") == ""), "Unknown")
+             .otherwise(col("store_size")))
+ .select("shop_id", "sales_amount", "performance_tier", "size_flag")
+ .display()
+)
 
 # COMMAND ----------
 
@@ -153,7 +183,16 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .groupBy("store_size")
+ .agg(
+     countDistinct("shop_id").alias("unique_shops"),
+     avg("sales_amount").alias("avg_sales"),
+     max("sales_amount").alias("max_sales"),
+     min("sales_amount").alias("min_sales")
+ )
+ .display()
+)
 
 # COMMAND ----------
 
@@ -170,7 +209,13 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+rename_dict = {"shop_id": "identifier", "shop_name": "store_title", "region": "zone"}
+renamed_df = master_shop_df
+
+for old_col, new_col in rename_dict.items():
+    renamed_df = renamed_df.withColumnRenamed(old_col, new_col)
+
+renamed_df.display()
 
 # COMMAND ----------
 
@@ -196,7 +241,15 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+# Pythonic dynamic expression generation
+sales_cols = [c for c in master_sales_df.columns if c.endswith("_sales")]
+agg_exprs = [sum(col(c)).alias(f"total_{c}") for c in sales_cols]
+
+(master_sales_df
+ .groupBy("region")
+ .agg(*agg_exprs)
+ .display()
+)
 
 # COMMAND ----------
 
@@ -216,4 +269,11 @@ master_shop_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
- 
+(master_sales_df
+ .groupBy("region")
+ .agg(
+     sum(when(col("store_size") == "Large", col("sales_amount")).otherwise(0)).alias("large_store_sales"),
+     sum(when(col("store_size") == "Small", col("sales_amount")).otherwise(0)).alias("small_store_sales")
+ )
+ .display()
+)
