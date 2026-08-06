@@ -43,7 +43,12 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q1_df = sales_df.select(
+    col("transaction_id"),
+    col("sales_amount").cast("int").alias("sales_amount_int"),
+    col("is_active").cast("boolean").alias("is_active_bool")
+)
+display(q1_df)
 
 # COMMAND ----------
 
@@ -61,7 +66,12 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q2_df = (
+    sales_df.alias("sales")
+    .join(shop_name_df.alias("shop"), ["shop_id"], "inner")
+    .select("sales.transaction_id", "shop.shop_name", "sales.sales_amount")
+)
+display(q2_df)
 
 # COMMAND ----------
 
@@ -79,7 +89,12 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q3_df = shop_name_df.select(
+    "shop_id",
+    "shop_name",
+    struct(col("promo_start_date"), col("promo_end_date")).alias("promo_period")
+)
+display(q3_df)
 
 # COMMAND ----------
 
@@ -103,7 +118,11 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
+q4_left = sales_df.join(shop_name_df, ["shop_id"], "left")
+q4_semi = sales_df.join(shop_name_df, ["shop_id"], "left_semi")
 
+display(q4_left)
+display(q4_semi)
 
 # COMMAND ----------
 
@@ -122,7 +141,12 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q5_df = sales_df.select(
+    "transaction_id",
+    to_date(col("transaction_date"), "yyyy-MM-dd").alias("date_cast"),
+    concat(col("transaction_date"), lit(" 12:00:00")).cast("timestamp").alias("timestamp_cast")
+)
+display(q5_df)
 
 # COMMAND ----------
 
@@ -138,7 +162,18 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q6_df = (
+    sales_df.alias("s")
+    .join(
+        shop_name_df.alias("p"),
+        (col("s.shop_id") == col("p.shop_id")) &
+        (to_date(col("s.transaction_date")) >= col("p.promo_start_date")) &
+        (to_date(col("s.transaction_date")) <= col("p.promo_end_date")),
+        "inner"
+    )
+    .select("s.transaction_id", "p.shop_name", "s.transaction_date")
+)
+display(q6_df)
 
 # COMMAND ----------
 
@@ -157,7 +192,12 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q7_df = shop_name_df.select(
+    "shop_name",
+    array(col("region"), col("shop_name")).alias("location_array"),
+    create_map(lit("region_code"), col("region")).alias("region_map")
+)
+display(q7_df)
 
 # COMMAND ----------
 
@@ -180,7 +220,22 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
+s_df = sales_df.withColumn("country_code", lit("US"))
+p_df = shop_name_df.withColumn("country_code", lit("US"))
 
+q8_df = (
+    s_df.alias("s")
+    .join(
+        p_df.alias("p"),
+        [
+            col("s.shop_id") == col("p.shop_id"),
+            col("s.country_code") == col("p.country_code")
+        ],
+        "inner"
+    )
+    .select("s.transaction_id", "s.shop_id", "p.shop_name", "s.country_code")
+)
+display(q8_df)
 
 # COMMAND ----------
 
@@ -199,7 +254,14 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
-
+q9_df = sales_df.select(
+    "transaction_id",
+    struct(
+        col("sales_amount").cast("decimal(10,2)").alias("sales_amount"),
+        col("is_active").cast("int").alias("is_active")
+    ).alias("transaction_metrics")
+)
+display(q9_df)
 
 # COMMAND ----------
 
@@ -218,3 +280,11 @@ shop_name_df = spark.createDataFrame(shop_data, schema=shop_schema)
 
 # COMMAND ----------
 
+q10_df = sales_df.select(
+    "transaction_id",
+    create_map(
+        lit(1), col("transaction_id").cast("string"),
+        lit(2), col("transaction_date")
+    ).alias("mixed_map")
+)
+display(q10_df)
