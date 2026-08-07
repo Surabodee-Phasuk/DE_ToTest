@@ -41,7 +41,8 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
-
+q1_df = transactions_df.dropDuplicates().dropna(subset=["store_size"])
+display(q1_df)
 
 # COMMAND ----------
 
@@ -58,7 +59,8 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
-
+q2_df = transactions_df.orderBy(col("amount").desc()).limit(2)
+display(q2_df)
 
 # COMMAND ----------
 
@@ -76,7 +78,11 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
-
+q3_df = transactions_df.select(
+    upper(col("category")).alias("category_upper"),
+    substring(upper(col("category")), 1, 3).alias("category_sub")
+).dropDuplicates()
+display(q3_df)
 
 # COMMAND ----------
 
@@ -96,7 +102,11 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
-
+q4_df = transactions_df.select(
+    "txn_id",
+    coalesce(col("store_size"), lit("Unknown")).alias("store_size_clean")
+)
+display(q4_df.filter(col("txn_id") == "T3"))
 
 # COMMAND ----------
 
@@ -116,7 +126,13 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
-
+q5_df = (
+    transactions_df
+    .withColumn("date_parts", split(col("txn_date"), "-"))
+    .withColumn("month", col("date_parts").getItem(1))
+    .select("txn_id", "txn_date", "month")
+)
+display(q5_df)
 
 # COMMAND ----------
 
@@ -134,7 +150,11 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
+df1 = transactions_df.select("txn_id", "amount")
+df2 = refunds_df
 
+q6_df = df1.unionByName(df2, allowMissingColumns=True)
+display(q6_df.filter(col("txn_id").isin("T1", "T5")))
 
 # COMMAND ----------
 
@@ -154,7 +174,17 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
-
+q7_df = (
+    transactions_df
+    .withColumn("actual_date", to_date(col("txn_date")))
+    .select(
+        "txn_date",
+        date_add(col("actual_date"), 7).alias("plus_7_days"),
+        dayofweek(col("actual_date")).alias("day_of_week")
+    )
+    .distinct()
+)
+display(q7_df)
 
 # COMMAND ----------
 
@@ -178,7 +208,19 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
+window_spec = Window.partitionBy("category").orderBy(col("amount").desc())
 
+q8_df = (
+    transactions_df
+    .select(
+        "category",
+        "amount",
+        row_number().over(window_spec).alias("row_num"),
+        dense_rank().over(window_spec).alias("d_rank")
+        )
+    .filter(col("category") == "Laptops")
+    )
+display(q8_df)
 
 # COMMAND ----------
 
@@ -196,7 +238,18 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
+window_spec_time = Window.orderBy("txn_date")
 
+q9_df = (
+    transactions_df.filter(col("customer_id") == 501)
+    .select(
+        "txn_date",
+        "amount",
+        lag("amount", 1).over(window_spec_time).alias("prev_amount"),
+        lead("amount", 1).over(window_spec_time).alias("next_amount")
+    )
+)
+display(q9_df)
 
 # COMMAND ----------
 
@@ -213,3 +266,9 @@ refunds_df = spark.createDataFrame(refund_data, schema=refund_schema)
 
 # COMMAND ----------
 
+grouped_df = transactions_df.groupBy("category").agg(collect_set("customer_id").alias("customer_ids"))
+
+laptops_only = grouped_df.filter(col("category") == "Laptops")
+except_df = grouped_df.exceptAll(laptops_only)
+
+display(except_df)
