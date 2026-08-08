@@ -30,7 +30,8 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+inv_collect = inventory_df.collect()
+print(inv_collect[0].item_id)
 
 # COMMAND ----------
 
@@ -45,7 +46,11 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
+selected_collect = inventory_df.select("item_id", "stock").collect()
 
+new_lists = [(_.item_id, _.stock) for _ in selected_collect]
+
+pprint(new_lists)
 
 # COMMAND ----------
 
@@ -57,7 +62,9 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+(inventory_df.write
+ .mode("overwrite")
+ .saveAsTable("session_7_spark.inv_overwrite"))
 
 # COMMAND ----------
 
@@ -68,7 +75,9 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+(inventory_df.write
+ .mode("append")
+ .saveAsTable("session_7_spark.inv_append"))
 
 # COMMAND ----------
 
@@ -79,7 +88,9 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+(inventory_df.write
+ .mode("ignore")
+ .saveAsTable("session_7_spark.inv_ignore"))
 
 # COMMAND ----------
 
@@ -90,7 +101,12 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+try:
+    (inventory_df.write
+     .mode("error")
+     .saveAsTable("session_7_spark.inv_error"))
+except Exception as e:
+    print("Table already exists. Error mode triggered successfully.")
 
 # COMMAND ----------
 
@@ -102,7 +118,10 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+(inventory_df.write
+ .format("delta")
+ .mode("overwrite")
+ .saveAsTable("session_7_spark.inv_explicit_delta"))
 
 # COMMAND ----------
 
@@ -114,7 +133,10 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
-
+(inventory_df.write
+ .partitionBy("warehouse")
+ .mode("overwrite")
+ .saveAsTable("session_7_spark.inv_partitioned"))
 
 # COMMAND ----------
 
@@ -126,7 +148,12 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
+modified_inv_df = inventory_df.withColumn("is_active", lit(True))
 
+(modified_inv_df.write
+ .mode("append")
+ .option("mergeSchema", "true")
+ .saveAsTable("session_7_spark.inv_append"))
 
 # COMMAND ----------
 
@@ -138,3 +165,9 @@ inventory_df = spark.createDataFrame(inv_data, schema=inv_schema)
 
 # COMMAND ----------
 
+modified_inv_df = inventory_df.withColumn("is_active", lit(True))
+
+(modified_inv_df.write
+ .mode("overwrite")
+ .option("overwriteSchema", "true")
+ .saveAsTable("session_7_spark.inv_overwrite"))
